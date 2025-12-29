@@ -171,6 +171,8 @@ def main():
                         help='Courant factor (default: 0.4)')
     parser.add_argument('--no-slope-limit', action='store_true',
                         help='Disable slope limiting')
+    parser.add_argument('--frames', type=int, default=300,
+                        help='Target number of frames (default: 300)')
     
     args = parser.parse_args()
     
@@ -181,12 +183,15 @@ def main():
     courant_fac = args.courant
     t = 0
     tEnd = args.end_time
-    tOut = tEnd/100
+    # Calculate frame interval for desired number of frames
+    tOut = tEnd / args.frames
     useSlopeLimiting = not args.no_slope_limit
     
     print(f"Starting MHD simulation with C++ core...")
     print(f"Resolution: {N}x{N}")
     print(f"End time: {tEnd}")
+    print(f"Target frames: {args.frames}")
+    print(f"Frame interval: {tOut:.6f}")
     print(f"Output: {args.output}")
     
     # Mesh
@@ -216,12 +221,18 @@ def main():
     
     Mass, Momx, Momy, Energy = getConserved(rho, vx, vy, P, Bx, By, gamma, vol)
     
-    # Setup video writer
-    fig = plt.figure(figsize=(6, 6), dpi=args.dpi)
+    # Setup figure and video writer
+    fig, ax = plt.subplots(figsize=(6, 6), dpi=args.dpi)
     writer = FFMpegWriter(fps=args.fps, metadata={'artist': 'MHD Simulation'})
     
-    frames = []
+    # Pre-create image object for faster updates
+    im = ax.imshow(rho.T, cmap='jet', origin='lower', vmin=0.06, vmax=0.5)
+    cbar = plt.colorbar(im, ax=ax, label='Density')
+    ax.set_aspect('equal')
+    title = ax.set_title(f'MHD Simulation - t = {t:.3f}')
+    
     outputCount = 1
+    frame_count = 0
     
     print("Running simulation...")
     
@@ -310,24 +321,25 @@ def main():
             
             t += dt
             
-            # Check divergence
-            divB = engine.getDiv(bx, by, dx)
-            
+            # Save frame
             if plotThisTurn or t >= tEnd:
-                print(f"t = {t:.4f}, mean |divB| = {np.mean(np.abs(divB)):.2e}")
+                divB = engine.getDiv(bx, by, dx)
                 
-                plt.clf()  # Clear entire figure instead of just axis
-                plt.imshow(rho.T, cmap='jet', origin='lower')
-                plt.clim(0.06, 0.5)
-                plt.title(f'MHD Simulation - t = {t:.3f}')
-                plt.colorbar(label='Density')
-                ax = plt.gca()
-                ax.set_aspect('equal')
+                if frame_count % 10 == 0:  # Print every 10th frame
+                    print(f"Frame {frame_count}, t = {t:.4f}, mean |divB| = {np.mean(np.abs(divB)):.2e}")
+                
+                # Update plot efficiently
+                im.set_data(rho.T)
+                title.set_text(f'MHD Simulation - t = {t:.3f}')
                 
                 writer.grab_frame()
                 outputCount += 1
+                frame_count += 1
     
-    print(f"Simulation complete! Video saved to {args.output}")
+    print(f"\nSimulation complete!")
+    print(f"Total frames: {frame_count}")
+    print(f"Video duration: {frame_count/args.fps:.2f} seconds")
+    print(f"Video saved to {args.output}")
     plt.close()
     
     return 0
