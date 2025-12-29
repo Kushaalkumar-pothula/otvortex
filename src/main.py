@@ -187,7 +187,7 @@ def main():
     tOut = tEnd / args.frames
     useSlopeLimiting = not args.no_slope_limit
     
-    print(f"Starting MHD simulation with C++ core...")
+    print(f"Starting Simulation")
     print(f"Resolution: {N}x{N}")
     print(f"End time: {tEnd}")
     print(f"Target frames: {args.frames}")
@@ -330,7 +330,7 @@ def main():
                 
                 # Update plot efficiently
                 im.set_data(rho.T)
-                title.set_text(f'MHD Simulation - t = {t:.3f}')
+                title.set_text(f'Orszag-Tang Vortex - t = {t:.3f}')
                 
                 writer.grab_frame()
                 outputCount += 1
