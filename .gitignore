@@ -1,2 +1,3 @@
-./src/build
-./src/*.so
+src/build
+src/*.so
+src/*.mp4

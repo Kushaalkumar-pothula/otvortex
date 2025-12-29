@@ -223,13 +223,13 @@ def main():
     
     # Setup figure and video writer
     fig, ax = plt.subplots(figsize=(6, 6), dpi=args.dpi)
-    writer = FFMpegWriter(fps=args.fps, metadata={'artist': 'MHD Simulation'})
+    writer = FFMpegWriter(fps=args.fps, metadata={'artist': 'Orszag-Tang Vortex'})
     
     # Pre-create image object for faster updates
     im = ax.imshow(rho.T, cmap='jet', origin='lower', vmin=0.06, vmax=0.5)
     cbar = plt.colorbar(im, ax=ax, label='Density')
     ax.set_aspect('equal')
-    title = ax.set_title(f'MHD Simulation - t = {t:.3f}')
+    title = ax.set_title(f'Orszag-Tang Vortex - t = {t:.3f}')
     
     outputCount = 1
     frame_count = 0
