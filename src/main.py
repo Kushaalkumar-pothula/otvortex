@@ -187,13 +187,13 @@ def main():
     tOut = tEnd / args.frames
     useSlopeLimiting = not args.no_slope_limit
     
-    print(f"Starting Simulation")
+    print("Starting Simulation")
     print(f"Resolution: {N}x{N}")
     print(f"End time: {tEnd}")
     print(f"Target frames: {args.frames}")
     print(f"Frame interval: {tOut:.6f}")
     print(f"Output: {args.output}")
-    
+        
     # Mesh
     dx = boxsize / N
     vol = dx**2
@@ -226,7 +226,7 @@ def main():
     writer = FFMpegWriter(fps=args.fps, metadata={'artist': 'Orszag-Tang Vortex'})
     
     # Pre-create image object for faster updates
-    im = ax.imshow(rho.T, cmap='jet', origin='lower', vmin=0.06, vmax=0.5)
+    im = ax.imshow(rho.T, cmap='plasma', origin='lower', vmin=0.06, vmax=0.5)
     cbar = plt.colorbar(im, ax=ax, label='Density')
     ax.set_aspect('equal')
     title = ax.set_title(f'Orszag-Tang Vortex - t = {t:.3f}')
